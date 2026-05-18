@@ -1,9 +1,7 @@
 import requests
 from html.parser import HTMLParser
-from html.entities import name2codepoint
 
 # using HTMLPARSER to parse out the table 
-
 class TableParser(HTMLParser):
     # defining what the table is
     def __init__(self):
@@ -49,19 +47,35 @@ class TableParser(HTMLParser):
 link = "https://docs.google.com/document/d/e/2PACX-1vTMOmshQe8YvaRXi6gEPKKlsC6UpFJSMAk4mQjLm_u1gmHdVVTaeh7nBNFBRlui0sTZ-snGwZM4DBCT/pub"
 response = requests.get(link)
 
-
 # DECODE bytes to string 
 html_content = response.content.decode('utf-8') 
-print(type(html_content))
-parser = TableParser()
-parser.feed(html_content)
-
-
 
 # parse the data
 # data starts at zero and can get infinitely large
 
+parser = TableParser()
+parser.feed(html_content)
+
 # print the secret 
 # basically, each row is 3 values: x,y and what char to print, and when printed together it'll print a letter 
-for row in parser.table_data:
-    print(row)
+# Skip the header row and extract coordinates + characters
+rows = parser.table_data[1:]
+grid = {}
+max_x = 0
+max_y = 0
+
+for row in rows:
+    x = int(row[0])
+    char = row[1]
+    y = int(row[2])
+    
+    grid[(x, y)] = char
+    max_x = max(max_x, x)
+    max_y = max(max_y, y)
+
+# Build and print the picture - this has to start from the highest Y co-ord or it will print upside down
+for y in range(max_y, -1, -1):
+    line = ""
+    for x in range(max_x + 1):
+        line += grid.get((x, y), " ")
+    print(line)

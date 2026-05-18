@@ -43,10 +43,17 @@ def display_secret_message(url):
                 self.current_cell += data
     
     # takes in the URL
-    #  TODO check URL is valid 
     # retrieve the data - decode it it comes in as bytes not str
     # don't have to do too much checking here, we can assume the data is formatted correctly based on the instructions
+    # Validate URL - only basic validation, could do other things like do i have access, network issues etc
+    if not isinstance(url, str):
+        raise ValueError("URL must be a string")
     
+    if not url.strip():
+        raise ValueError("URL cannot be empty")
+    
+    if not url.startswith("https://docs.google.com/document/"):
+        raise ValueError("URL must be a Google Docs URL (https://docs.google.com/document/...)")
     response = requests.get(url)
     html_content = response.content.decode('utf-8')
      
